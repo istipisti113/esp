@@ -6,3 +6,4 @@ result
 target/
 flycheck_*
 .direnv/
+out.bin

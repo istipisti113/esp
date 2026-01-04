@@ -17,6 +17,7 @@
         {package = pkgs.rustfmt;}
         {package = pkgs.rust-analyzer;}
         {package = pkgs.clippy;}
+        {package = pkgs.espflash;}
       ];
 
       env = [
@@ -51,6 +52,7 @@
           You can now run:
             • {bold}cd embassy_hello_world{reset}
             • {bold}cargo build --features esp32 --target xtensa-esp32-none-elf --release{reset}
+            • {bold}espflash save-image --chip esp32 target/xtensa-esp32-none-elf/release/embassy-hello-world out.bin{reset}
         '';
 
         startup.check-bubblewrap.text = ''
