@@ -32,10 +32,11 @@
       patchPhase = "patchShebangs .";
       nativeBuildInputs = with pkgs; [autoPatchelfHook pkg-config];
       buildInputs = with pkgs; [stdenv.cc.cc zlib];
-      # FIXME: do we really need `cargo` and others here? Isn’t just `rustc` with Xtensa enough?
+      # Let’s only install the `rustc` component (and `rust-std-x86_64-unknown-linux-gnu` for `build.rs` scripts):
       installPhase = ''
         mkdir -p $out
-        ./install.sh --destdir=$out --prefix= --disable-ldconfig --without=rust-docs-json-preview,rust-docs
+        ./install.sh --destdir=$out --prefix= --disable-ldconfig \
+          --without=cargo,rustfmt-preview,clippy-preview,rust-docs,rust-docs-json-preview
         chmod -R +w $out
         ln -s ${rust-src}/lib/rustlib/src $out/lib/rustlib/src
       '';
