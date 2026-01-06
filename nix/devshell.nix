@@ -11,7 +11,6 @@
       name = "esp-rust-nix-sandbox-devshell";
 
       commands = [
-        {package = packages.help-bwrap;}
         {package = packages.bwrap-rustc;}
         {package = packages.bwrap-cargo;}
         {package = pkgs.rustfmt;}
@@ -47,7 +46,10 @@
 
           {202}🔨 Welcome to ${config.name}{reset}
 
-          ${lib.trim packages.help-bwrap.meta.longDescription}
+          Untrusted binary blobs (pre-built Rust and GCC compilers) are run in a strict Bubblewrap
+          ({bold}bwrap{reset}) sandbox with access only to {bold}$PRJ_ROOT{reset}.
+
+          The other tools (Cargo, espflash, etc.) are source-based and come from regular Nixpkgs.
           $(menu)
 
           You can now run:
@@ -57,9 +59,7 @@
             • {bold}espflash save-image --chip esp32 target/xtensa-esp32-none-elf/release/embassy-hello-world out.bin{reset}
         '';
 
-        startup.check-bubblewrap.text = ''
-          # TODO
-        '';
+        startup.verify-bwrap.text = lib.getExe packages.verify-bwrap;
       };
     };
 }
