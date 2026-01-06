@@ -61,6 +61,10 @@
             • {bold}cargo build --features esp32 --target xtensa-esp32-none-elf --release{reset}
             • {bold}cargo doc   --features esp32 --target xtensa-esp32-none-elf --release --open{reset}
             • {bold}espflash save-image --chip esp32 target/xtensa-esp32-none-elf/release/embassy-hello-world out.bin{reset}
+
+          To flash, and monitor output:
+            • {bold}cargo espflash flash --monitor --features esp32 --target xtensa-esp32-none-elf --release{reset}
+            • {bold}cargo run --release{reset} (alias of ^)
         '';
 
         startup.verify-bwrap.text = lib.getExe packages.verify-bwrap;
