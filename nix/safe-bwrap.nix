@@ -40,13 +40,18 @@ in {
     bwrap-rustc = bubble-wrap-rust "rustc";
     bwrap-rustdoc = bubble-wrap-rust "rustdoc";
 
-    bwrap-cargo = pkgs.cargo.overrideAttrs (old: {
-      # Don’t force the non-forked compiler onto Cargo’s `PATH`:
-      postInstall =
-        old.postInstall
-        + ''
-          sed -r 's#${old.passthru.rustc}#${pkgs.emptyDirectory}#g' -i $out/bin/cargo
-        '';
-    });
+    # We don’t want `cargo` wrapper to add the original non-forked `rustc` to its `PATH`:
+    bwrap-cargo = let
+      original = pkgs.cargo;
+    in
+      pkgs.writeShellApplication {
+        name = original.pname;
+        meta.description = original.meta.description;
+        text =
+          lib.replaceStrings
+          [original.passthru.rustc.outPath]
+          [pkgs.emptyDirectory.outPath]
+          (lib.readFile (lib.getExe original));
+      };
   };
 }
