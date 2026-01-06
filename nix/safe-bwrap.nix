@@ -3,11 +3,11 @@
   lib,
   pkgs,
   ...
-}: {
-  packages = {
-    bwrap-rustc = pkgs.writeShellApplication {
-      name = "rustc";
-      meta.description = "Pre-built Rust compiler fork for ESP32 (xtensa, riscv32) in a Bubblewrap sandbox";
+}: let
+  bubble-wrap-rust = exe:
+    pkgs.writeShellApplication {
+      name = exe;
+      meta.description = "Pre-built Rust compiler fork for ESP32 (xtensa, riscv32) in a Bubblewrap sandbox (${exe})";
       text = ''
         mkdir -p "$PRJ_ROOT/target/tmp"
         bwrap_opts=(
@@ -32,9 +32,13 @@
               ;;
           esac
         done
-        exec bwrap "''${bwrap_opts[@]}" -- ${config.packages.unsafe-bin-esp-rust}/bin/rustc "$@"
+        exec bwrap "''${bwrap_opts[@]}" -- ${config.packages.unsafe-bin-esp-rust}/bin/${lib.escapeShellArg exe} "$@"
       '';
     };
+in {
+  packages = {
+    bwrap-rustc = bubble-wrap-rust "rustc";
+    bwrap-rustdoc = bubble-wrap-rust "rustdoc";
 
     bwrap-cargo = pkgs.cargo.overrideAttrs (old: {
       # Don’t force the non-forked compiler onto Cargo’s `PATH`:
