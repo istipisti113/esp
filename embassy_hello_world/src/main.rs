@@ -2,6 +2,8 @@
 //!
 //! This is an example of running the embassy executor with multiple tasks
 //! concurrently.
+//!
+//! Including blinky on GPIO2.
 
 #![no_std]
 #![no_main]
@@ -9,6 +11,7 @@
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
+use esp_hal::gpio::{Level, Output, OutputConfig};
 use esp_hal::timer::timg::TimerGroup;
 
 esp_bootloader_esp_idf::esp_app_desc!();
@@ -18,6 +21,14 @@ async fn run() {
     loop {
         esp_println::println!("Hello world from embassy!");
         Timer::after(Duration::from_millis(1_000)).await;
+    }
+}
+
+#[embassy_executor::task]
+async fn blinky(mut led: Output<'static>) {
+    loop {
+        led.toggle();
+        Timer::after(Duration::from_millis(500)).await;
     }
 }
 
@@ -34,6 +45,10 @@ async fn main(spawner: Spawner) {
         #[cfg(target_arch = "riscv32")]
         esp_hal::interrupt::software::SoftwareInterruptControl::new(peripherals.SW_INTERRUPT),
     );
+
+    // If your board’s LED is on a different GPIO, change GPIO2 here.
+    let led = Output::new(peripherals.GPIO2, Level::High, OutputConfig::default());
+    spawner.spawn(blinky(led)).ok();
 
     spawner.spawn(run()).ok();
 
