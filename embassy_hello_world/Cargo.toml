@@ -14,6 +14,10 @@ esp-rtos = { version = "0.2.0", features = ["embassy", "log-04"] }
 esp-println = { version = "0.16.0", features = ["log-04"] }
 
 [features]
+# Sets the default chip for less noisy `cargo build`, `rust-analyzer` etc.
+# Remove if you change chips often:
+default = ["esp32"]
+
 esp32 = [
   "esp-backtrace/esp32",
   "esp-bootloader-esp-idf/esp32",
@@ -62,3 +66,13 @@ debug = true
 debug-assertions = true
 lto = "fat"
 codegen-units = 1
+
+[[bin]]
+name = "embassy-hello-world"
+path = "src/main.rs"
+# In embedded dev, the tests should be compiled for and run on the host
+# architecture, as much as possible. You can also have an on-device integration
+# tests crate. Either way, you can’t use `#[test]` in `src/main.rs` for ESP32.
+test = false
+doctest = false
+bench = false
