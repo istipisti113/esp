@@ -18,6 +18,7 @@
           system' =
             {
               x86_64-linux = "x86_64-unknown-linux-gnu";
+              aarch64-linux = "aarch64-unknown-linux-gnu";
               aarch64-darwin = "aarch64-apple-darwin";
             }.${
               system
@@ -26,6 +27,7 @@
         hash =
           {
             x86_64-linux = "sha256-+XSHYwZRqzQmy2XEQVljvTcgwKkx8Y3ZKHQWgbRJ1pI=";
+            aarch64-linux = "sha256-XPHmkPk/qaR3B1inR7d9zrACJDlfik4CbMj9BYsrN+g=";
             aarch64-darwin = "sha256-iRTnPWFARS70lEJi6szcnVlTFCkzYPhdnpkB50I+Wu8=";
           }.${
             system
@@ -88,6 +90,7 @@
             system' =
               {
                 x86_64-linux = "x86_64-linux-gnu";
+                aarch64-linux = "aarch64-linux-gnu";
                 aarch64-darwin = "aarch64-apple-darwin";
               }.${
                 system
@@ -98,6 +101,10 @@
               x86_64-linux = {
                 xtensa = "sha256-TMjkfwsm9xwPYIowTrOgU+/Cst5uKV0xJH8sbxcTIlc=";
                 riscv32 = "sha256-or85yVifw/j09F7I4pOdgut7Wti88LL1ftnyprX0A9E=";
+              };
+              aarch64-linux = {
+                xtensa = "sha256-SL3wIxnkcYJw04A9J1GTmpLvlE1iby5HdtLYmFwRaps=";
+                riscv32 = "sha256-GKn2MGsSfY8ZNrq7KFM1nPo+ChK2dcNj3pyIMtaPDvY=";
               };
               aarch64-darwin = {
                 xtensa = "sha256-O0gXFHa127y5hzwRJeXcvs3ZtF2eK93YJcwut9P9gok=";
@@ -132,6 +139,7 @@
             system' =
               {
                 x86_64-linux = "x86_64-linux-gnu";
+                aarch64-linux = "aarch64-linux-gnu";
                 aarch64-darwin = "aarch64-apple-darwin24.5";
               }.${
                 system
@@ -142,6 +150,10 @@
               x86_64-linux = {
                 xtensa = "sha256-LLbllfc+QvPyuv1mqNwgKDVTCMdDI4fDm+yt7dj2q1A=";
                 riscv32 = "sha256-XN0ED+rlOjrWLGpC4gBdPcGkPF5bQgiG1IyHjtmYKoI=";
+              };
+              aarch64-linux = {
+                xtensa = "sha256-OEQmdd2urX7f2vDMlLFKJ3WQjT3TJCcOusarYneSsYE=";
+                riscv32 = "sha256-O7uGkX89KUv2YEB7UA2rt9FmU8L4J7bvKcNxorFVIPg=";
               };
               aarch64-darwin = {
                 xtensa = "sha256-0Gx6SquQyPQobJNxSlaUHWQZq+vBWJx3ahSACpFu/50=";
