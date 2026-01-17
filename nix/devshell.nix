@@ -6,13 +6,21 @@
 }: {
   devshells.default = let
     inherit (config) packages;
+    chosen.rustc =
+      if pkgs.stdenv.isLinux
+      then packages.bwrap-rustc
+      else packages.unsafe-bin-esp-rust;
+    chosen.rustdoc =
+      if pkgs.stdenv.isLinux
+      then packages.bwrap-rustdoc
+      else packages.unsafe-bin-esp-rust;
   in
     {config, ...}: {
       name = "esp-rust-nix-sandbox-devshell";
 
       commands = [
-        {package = packages.bwrap-rustc;}
-        {package = packages.bwrap-cargo;}
+        {package = chosen.rustc;}
+        {package = packages.cargo-any-rust;}
         {package = pkgs.rustfmt;}
         {package = pkgs.rust-analyzer;}
         {package = pkgs.clippy;}
@@ -23,7 +31,7 @@
       env = [
         {
           name = "RUSTC";
-          value = lib.getExe packages.bwrap-rustc;
+          value = lib.getExe chosen.rustc;
         }
         {
           name = "CARGO_HOME";
@@ -44,7 +52,7 @@
       devshell = {
         packages = [
           pkgs.unixtools.xxd
-          packages.bwrap-rustdoc
+          chosen.rustdoc
         ];
 
         motd = ''

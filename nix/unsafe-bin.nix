@@ -18,6 +18,7 @@
           system' =
             {
               x86_64-linux = "x86_64-unknown-linux-gnu";
+              aarch64-darwin = "aarch64-apple-darwin";
             }.${
               system
             };
@@ -25,13 +26,17 @@
         hash =
           {
             x86_64-linux = "sha256-+XSHYwZRqzQmy2XEQVljvTcgwKkx8Y3ZKHQWgbRJ1pI=";
+            aarch64-darwin = "sha256-iRTnPWFARS70lEJi6szcnVlTFCkzYPhdnpkB50I+Wu8=";
           }.${
             system
           };
       };
       patchPhase = "patchShebangs .";
-      nativeBuildInputs = with pkgs; [autoPatchelfHook pkg-config];
-      buildInputs = with pkgs; [stdenv.cc.cc zlib];
+      nativeBuildInputs = with pkgs;
+        [makeWrapper]
+        ++ lib.optionals stdenv.isLinux [autoPatchelfHook pkg-config]
+        ++ lib.optionals stdenv.isDarwin [darwin.autoSignDarwinBinariesHook];
+      buildInputs = with pkgs; lib.optionals stdenv.isLinux [stdenv.cc.cc zlib];
       # Let’s only install the `rustc` component (and `rust-std-x86_64-unknown-linux-gnu` for `build.rs` scripts):
       installPhase = ''
         mkdir -p $out
@@ -39,7 +44,17 @@
           --without=cargo,rustfmt-preview,clippy-preview,rust-docs,rust-docs-json-preview
         chmod -R +w $out
         ln -s ${rust-src}/lib/rustlib/src $out/lib/rustlib/src
+
+        for exe in $out/bin/{rustc,rustdoc} ; do
+          wrapProgram "$exe" --prefix PATH : ${lib.makeBinPath [
+          config.packages.unsafe-bin-esp-gcc-xtensa
+          config.packages.unsafe-bin-esp-gcc-riscv32
+          pkgs.stdenv.cc # needed for `build.rs` scripts which run on the host
+        ]}
+        done
       '';
+      dontStrip = pkgs.stdenv.isDarwin; # or else no `.rmeta` section in `…/libcore-….rlib` etc.
+      meta.mainProgram = "rustc";
     };
 
   rust-src = let
@@ -51,16 +66,9 @@
       src = pkgs.fetchzip {
         name = "rust-src-${version}";
         url = "https://github.com/esp-rs/rust-build/releases/download/v${version}/rust-src-${version}.tar.xz";
-        hash =
-          {
-            x86_64-linux = "sha256-3p4K15Bnin7gptpB7ub1TaYvRdWhy4AECtrWxy3wS74=";
-          }.${
-            system
-          };
+        hash = "sha256-3p4K15Bnin7gptpB7ub1TaYvRdWhy4AECtrWxy3wS74=";
       };
       patchPhase = "patchShebangs .";
-      nativeBuildInputs = with pkgs; [autoPatchelfHook pkg-config];
-      buildInputs = with pkgs; [stdenv.cc.cc zlib];
       installPhase = ''
         mkdir -p $out
         ./install.sh --destdir=$out --prefix= --disable-ldconfig
@@ -80,6 +88,7 @@
             system' =
               {
                 x86_64-linux = "x86_64-linux-gnu";
+                aarch64-darwin = "aarch64-apple-darwin";
               }.${
                 system
               };
@@ -90,6 +99,10 @@
                 xtensa = "sha256-TMjkfwsm9xwPYIowTrOgU+/Cst5uKV0xJH8sbxcTIlc=";
                 riscv32 = "sha256-or85yVifw/j09F7I4pOdgut7Wti88LL1ftnyprX0A9E=";
               };
+              aarch64-darwin = {
+                xtensa = "sha256-O0gXFHa127y5hzwRJeXcvs3ZtF2eK93YJcwut9P9gok=";
+                riscv32 = "sha256-ui6SL84mAXNOS9np+lQpJH4QqF9wTL86zyWwm7vv3NY=";
+              };
             }.${
               system
             }.${
@@ -97,8 +110,10 @@
             };
         };
         patchPhase = "patchShebangs .";
-        nativeBuildInputs = with pkgs; [autoPatchelfHook pkg-config];
-        buildInputs = with pkgs; [stdenv.cc.cc zlib];
+        nativeBuildInputs = with pkgs;
+          lib.optionals stdenv.isLinux [autoPatchelfHook pkg-config]
+          ++ lib.optionals stdenv.isDarwin [darwin.autoSignDarwinBinariesHook];
+        buildInputs = with pkgs; lib.optionals stdenv.isLinux [stdenv.cc.cc zlib];
         installPhase = "cp -r . $out";
       });
 
@@ -117,6 +132,7 @@
             system' =
               {
                 x86_64-linux = "x86_64-linux-gnu";
+                aarch64-darwin = "aarch64-apple-darwin24.5";
               }.${
                 system
               };
@@ -127,6 +143,10 @@
                 xtensa = "sha256-LLbllfc+QvPyuv1mqNwgKDVTCMdDI4fDm+yt7dj2q1A=";
                 riscv32 = "sha256-XN0ED+rlOjrWLGpC4gBdPcGkPF5bQgiG1IyHjtmYKoI=";
               };
+              aarch64-darwin = {
+                xtensa = "sha256-0Gx6SquQyPQobJNxSlaUHWQZq+vBWJx3ahSACpFu/50=";
+                riscv32 = "sha256-T+2utYRNOH112pJtBMBeW32so6jsGNG1eTJ4TwarcIk=";
+              };
             }.${
               system
             }.${
@@ -134,8 +154,10 @@
             };
         };
         patchPhase = "patchShebangs .";
-        nativeBuildInputs = with pkgs; [autoPatchelfHook pkg-config];
-        buildInputs = with pkgs; [stdenv.cc.cc zlib python3];
+        nativeBuildInputs = with pkgs;
+          lib.optionals stdenv.isLinux [autoPatchelfHook pkg-config]
+          ++ lib.optionals stdenv.isDarwin [darwin.autoSignDarwinBinariesHook];
+        buildInputs = with pkgs; lib.optionals stdenv.isLinux [stdenv.cc.cc zlib python3];
         installPhase = ''
           cp -r . $out
           chmod -R +w $out

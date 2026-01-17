@@ -6,12 +6,7 @@
 }: let
   bubble-wrap-rust = exe: let
     unsafe = config.packages.unsafe-bin-esp-rust;
-    closure = pkgs.writeClosure (pkgs.writeText "all-deps" (toString ([unsafe bwrap-cargo] ++ path)));
-    path = [
-      config.packages.unsafe-bin-esp-gcc-xtensa
-      config.packages.unsafe-bin-esp-gcc-riscv32
-      pkgs.stdenv.cc # needed for `build.rs` scripts which run on the host
-    ];
+    closure = pkgs.writeClosure (pkgs.writeText "all-deps" (toString [unsafe cargo-any-rust]));
     strictStore = true;
   in
     pkgs.writeShellApplication {
@@ -25,7 +20,6 @@
           --proc /proc
           --dev /dev
           --clearenv
-          --setenv PATH ${lib.makeBinPath path}
           --bind "$PRJ_ROOT" "$PRJ_ROOT"
           --bind "$PRJ_ROOT/target/tmp" /tmp
           --ro-bind "$DEVSHELL_DIR" "$DEVSHELL_DIR"
@@ -55,7 +49,7 @@
     };
 
   # We don’t want `cargo` wrapper to add the original non-forked `rustc` to its `PATH`:
-  bwrap-cargo = let
+  cargo-any-rust = let
     original = pkgs.cargo;
   in
     pkgs.writeShellApplication {
@@ -69,7 +63,7 @@
     };
 in {
   packages = {
-    inherit bwrap-cargo;
+    inherit cargo-any-rust;
     bwrap-rustc = bubble-wrap-rust "rustc";
     bwrap-rustdoc = bubble-wrap-rust "rustdoc";
   };
